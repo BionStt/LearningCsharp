@@ -8,32 +8,90 @@ namespace Millikan
     {
         static void Main()
         {
-            System.Console.Write("Please enter a file path: ");
-            string Result = "File does not exist";
-            string FilePath = System.Console.ReadLine();
-            if (FileHandler.FileExists(FilePath))
+            //Main program
+            string[] ContinueOptions = new string[] { "Y", "N" };
+            bool ContinueProgram = true;
+            while (ContinueProgram)
             {
-                Result = "File exists";
-            }
-            System.Console.WriteLine(Result);
-            if (FileHandler.FileExists(FilePath))
-            {
-                string Header = "-----" + FilePath + "-----\n" + "Line count: " + FileHandler.GetFileLength(FilePath).ToString() + "\n";
-                System.Console.WriteLine(Header);
-                string[] FileContents = FileHandler.ReadFileToArray(FilePath);
-                //Use foreach to print every line in the array
-                foreach(string line in FileContents)
+                bool FileNameValid = false;
+                string FileName = "";
+                while (!FileNameValid)
                 {
-                    System.Console.WriteLine(line);
+                    System.Console.Write("Enter a filename: ");
+                    FileName = System.Console.ReadLine();
+                    if (FileHandler.FileExists(FileName))
+                    {
+                        break;
+                    }
+                    System.Console.WriteLine("Invalid filename");
                 }
+                string[] FileContents = FileHandler.ReadFileToArray(FileName);
+                double[] Values = new double[0];
+                //For every line from the file, check it is a double and if so, expand the double array and put it in
+                foreach(string Line in FileContents)
+                {
+                    if (IsDouble(Line))
+                    {
+                        System.Array.Resize<double>(ref Values, Values.Length + 1);
+                        Values[Values.Length - 1] = double.Parse(Line);
+                    }
+                }
+                string Output = "No usable data";
+                //Only work on arrays with something in
+                if (Values.Length > 0)
+                {
+                    Output = "-----" + FileName + "-----\n\n" + "Mean: " + StatsCalculator.CalculateMean(Values).ToString() + "\nStandard Deivation: " +
+                        StatsCalculator.CalculateStdDev(Values).ToString() + "\nStandard Error: " + StatsCalculator.CalculateStdErr(Values).ToString();
+                }
+                System.Console.WriteLine(Output);
+                string ContinueChoice = TakeStringInput(ContinueOptions, "Restart program? (Y/N): ");
+                if (ContinueChoice.ToLower() == "n")
+                {
+                    ContinueProgram = true;
+                }
+                System.Console.Clear();
             }
-            System.Console.Read();
         }
 
         //Function to check a string is a double
-
-        //Function to validate input with list of input options
-
+        private static bool IsDouble(string StringToCheck)
+        {
+            return double.TryParse(StringToCheck, out double Result);
+        }
+        //Function to validate input with list of input options - use for choosing whether to exit
+        private static string TakeStringInput(string[] Options, string CustomMessage)
+        {
+            string InputString = "InputString";
+            string LoweredString = "LoweredString";
+            bool GettingInput = true;
+            while (GettingInput)
+            {
+                System.Console.Write(CustomMessage);
+                InputString = System.Console.ReadLine();
+                LoweredString = InputString.ToLower();
+                bool ValidInputFound = false;
+                foreach (string Option in Options)
+                {
+                    if (LoweredString == Option.ToLower())
+                    {
+                        //Valid option found
+                        ValidInputFound = true;
+                        break;
+                    }
+                }
+                if (ValidInputFound)
+                {
+                    break;
+                }
+                //Else no matching input found, so give an error message and try again
+                System.Console.WriteLine("Invalid input, please input one of the following:");
+                foreach (string Option in Options)
+                {
+                    System.Console.WriteLine(Option);
+                }
+            }
+            return InputString;
+        }
     }
 
     class FileHandler
@@ -68,9 +126,38 @@ namespace Millikan
         /*STATIC FUNCTIONS*/
 
         //Function to calculate mean
+        public static double CalculateMean(double[] ValueArray)
+        {
+            double Sum = 0;
+            foreach(double Value in ValueArray)
+            {
+                Sum += Value;
+            }
+            return Sum / ValueArray.Length;
+        }
 
         //Function to calculate standard deviation
+        public static double CalculateStdDev(double[] ValueArray)
+        {
+            //Prevent division by 0
+            if (ValueArray.Length == 0)
+            {
+                return 0.0;
+            }
+
+            double Mean = CalculateMean(ValueArray);
+            double TempSquareSum = 0;
+            foreach(double Value in ValueArray)
+            {
+                TempSquareSum += System.Math.Pow((Value - Mean), 2);
+            }
+            return System.Math.Sqrt(TempSquareSum / (ValueArray.Length - 1));
+        }
 
         //Function to calculate standard error
+        public static double CalculateStdErr(double[] ValueArray)
+        {
+            return CalculateStdDev(ValueArray) / System.Math.Sqrt(ValueArray.Length);
+        }
     }
 }
