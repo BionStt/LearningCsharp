@@ -18,7 +18,14 @@ namespace Millikan
             System.Console.WriteLine(Result);
             if (FileHandler.FileExists(FilePath))
             {
-                System.Console.WriteLine(System.IO.File.ReadAllText(FilePath));
+                string Header = "-----" + FilePath + "-----\n" + "Line count: " + FileHandler.GetFileLength(FilePath).ToString() + "\n";
+                System.Console.WriteLine(Header);
+                string[] FileContents = FileHandler.ReadFileToArray(FilePath);
+                //Use foreach to print every line in the array
+                foreach(string line in FileContents)
+                {
+                    System.Console.WriteLine(line);
+                }
             }
             System.Console.Read();
         }
@@ -43,11 +50,17 @@ namespace Millikan
             return false;
         }
 
-        //Function to open user file
-
         //Function to calculate file length
+        public static int GetFileLength(string FileName)
+        {
+            return System.IO.File.ReadAllLines(FileName).Length;
+        }
 
         //Function to read each line in a file to an array
+        public static string[] ReadFileToArray(string FileName)
+        {
+            return System.IO.File.ReadAllLines(FileName);
+        }
     }
 
     class StatsCalculator
