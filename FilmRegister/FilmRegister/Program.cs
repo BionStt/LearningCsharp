@@ -19,7 +19,7 @@ namespace FilmRegister
             System.Collections.Generic.List<System.Tuple<int, string>> FilmList = new System.Collections.Generic.List<System.Tuple<int, string>> { };
             while (true)
             {
-                System.Console.WriteLine("Enter Year (1950-2018) and Name or x to exit.");
+                System.Console.WriteLine("Enter Year (1950-2018) and Name or x to exit.");  //Make this reponsive
                 System.Console.Write("Input: ");
                 string UserInput = System.Console.ReadLine();
                 if(UserInput == "x")
@@ -31,13 +31,22 @@ namespace FilmRegister
                     System.Console.WriteLine(ErrorMsg);
                 }
             }
+            //Filter list by 1990s decade
+            System.Collections.Generic.List<System.Tuple<int, string>> FilteredList = FilterByDecade(ref FilmList, 1990);
             //Print list of films
+            System.Console.WriteLine("Unfiltered:");
             System.Console.WriteLine("Year   Name\n------------------");
             foreach(System.Tuple<int, string> Element in FilmList)
             {
                 System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
             }
-             //END TEST
+            System.Console.WriteLine("\nFiltered:");
+            System.Console.WriteLine("Year   Name\n------------------");
+            foreach (System.Tuple<int, string> Element in FilteredList)
+            {
+                System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
+            }
+            //END TEST
         }
 
         //Function to take user input of YEAR FILMNAME - return true if input valid and appended, else return false
@@ -97,10 +106,25 @@ namespace FilmRegister
             }
             return true;
         }
-        //Function to filter by decade
+        //Function to filter by decade - decade input must be between minimum and maximum decade and divisible by 10
+        private static System.Collections.Generic.List<System.Tuple<int, string>> FilterByDecade(ref System.Collections.Generic.List<System.Tuple<int, string>> FilmList, int DecadeIn)
+        {
+            System.Collections.Generic.List<System.Tuple<int, string>> FilteredList = new System.Collections.Generic.List<System.Tuple<int, string>> { };
+            foreach(System.Tuple<int, string> Film in FilmList)
+            {
+                //Eg decade: 1970's, film year: 1975, remainder is 5 so it is added to filtered list
+                if (Film.Item1 - DecadeIn >= 0 && Film.Item1 - DecadeIn < 10)
+                {
+                    FilteredList.Add(Film);
+                }
+            }
+            return FilteredList;
+        }
 
         //Function to sort by year
 
         //Function to sort by name
+
+        //Function to print film list to a file
     }
 }
