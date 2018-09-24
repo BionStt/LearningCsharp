@@ -35,34 +35,46 @@ namespace FilmRegister
             System.Collections.Generic.List<System.Tuple<int, string>> FilteredList = FilterByDecade(ref FilmList, 1990);
             //Print list of films
             System.Console.WriteLine("Unfiltered:");
-            System.Console.WriteLine("Year   Name\n------------------");
-            foreach(System.Tuple<int, string> Element in FilmList)
-            {
-                System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
-            }
+            PrintFilmList(ref FilmList);
             System.Console.WriteLine("\nFiltered:");
-            System.Console.WriteLine("Year   Name\n------------------");
-            foreach (System.Tuple<int, string> Element in FilteredList)
-            {
-                System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
-            }
+            PrintFilmList(ref FilteredList);
             //Sort lists by name and year
             FilteredList = FilmList;
             SortByName(ref FilteredList);
             System.Console.WriteLine("\nSorted by name:");
-            System.Console.WriteLine("Year   Name\n------------------");
-            foreach (System.Tuple<int, string> Element in FilteredList)
-            {
-                System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
-            }
+            PrintFilmList(ref FilteredList);
             SortByYear(ref FilteredList);
             System.Console.WriteLine("\nSorted by year:");
-            System.Console.WriteLine("Year   Name\n------------------");
-            foreach (System.Tuple<int, string> Element in FilteredList)
-            {
-                System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
-            }
+            PrintFilmList(ref FilteredList);
             //END TEST
+        }
+        //Function to print a film list with adaptive title bar size
+        private static void PrintFilmList(ref System.Collections.Generic.List<System.Tuple<int, string>> FilmList)
+        {
+            if(FilmList.Count <= 0)
+            {
+                System.Console.WriteLine("No films available.");
+                return;
+            }
+            //Calculate max number of dashes to go under year and name titles
+            System.Collections.Generic.List<System.Tuple<int, string>> CopiedList = FilmList;
+            CopiedList.Sort((i, j) => j.Item2.Length.CompareTo(i.Item2.Length));
+            int NumberOfDashes = CopiedList[0].Item2.Length + 8;
+            if (NumberOfDashes < 12)
+            {
+                NumberOfDashes = 12;
+            }
+            System.Console.WriteLine("Year    Name");
+            string DashedLine = "";
+            for(int i = 0; i < NumberOfDashes; i++)
+            {
+                DashedLine += "-";
+            }
+            System.Console.WriteLine(DashedLine);
+            foreach (System.Tuple<int, string> Element in FilmList)
+            {
+                System.Console.WriteLine("{0}    {1}", Element.Item1.ToString(), Element.Item2);
+            }
         }
 
         //Function to take user input of YEAR FILMNAME - return true if input valid and appended, else return false
