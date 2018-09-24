@@ -46,6 +46,22 @@ namespace FilmRegister
             {
                 System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
             }
+            //Sort lists by name and year
+            FilteredList = FilmList;
+            SortByName(ref FilteredList);
+            System.Console.WriteLine("\nSorted by name:");
+            System.Console.WriteLine("Year   Name\n------------------");
+            foreach (System.Tuple<int, string> Element in FilteredList)
+            {
+                System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
+            }
+            SortByYear(ref FilteredList);
+            System.Console.WriteLine("\nSorted by year:");
+            System.Console.WriteLine("Year   Name\n------------------");
+            foreach (System.Tuple<int, string> Element in FilteredList)
+            {
+                System.Console.WriteLine("{0}   {1}", Element.Item1.ToString(), Element.Item2);
+            }
             //END TEST
         }
 
@@ -88,8 +104,16 @@ namespace FilmRegister
             //See if film name already exists in list
             if (FilmList.Exists(Film => Film.Item2 == NameString))
             {
-                ErrorMsg = "Film name already in list";
-                return false;
+                //Find all the elements with matching name and check their years
+                System.Collections.Generic.List<System.Tuple<int, string>> MatchingFilms = FilmList.FindAll(Film => Film.Item2 == NameString);
+                foreach(System.Tuple<int, string> Film in MatchingFilms)
+                {
+                    if (Film.Item1 == YearInt)
+                    {
+                        ErrorMsg = "Film name already in list";
+                        return false;
+                    }
+                }
             }
             //Add year and film name to list
             FilmList.Add(System.Tuple.Create(YearInt, NameString));
@@ -121,9 +145,17 @@ namespace FilmRegister
             return FilteredList;
         }
 
-        //Function to sort by year
+        //Function to sort by year - will act on filtered list
+        private static void SortByYear(ref System.Collections.Generic.List<System.Tuple<int, string>> FilteredList)
+        {
+            FilteredList.Sort((i, j) => i.Item1.CompareTo(j.Item1));
+        }
 
         //Function to sort by name
+        private static void SortByName(ref System.Collections.Generic.List<System.Tuple<int, string>> FilteredList)
+        {
+            FilteredList.Sort((i, j) => i.Item2.CompareTo(j.Item2));
+        }
 
         //Function to print film list to a file
     }
