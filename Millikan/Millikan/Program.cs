@@ -1,5 +1,6 @@
 /*Recreation of previous C++ program to read data for millikan's experiment from a text file and calculate mean, standard deviation
  and standard error for charge on an electron. Any erroneous data is discarded*/
+//Main Lesson: Reading data from a file and validating it
 
 
 namespace Millikan

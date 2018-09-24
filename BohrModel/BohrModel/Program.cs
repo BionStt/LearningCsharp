@@ -1,4 +1,5 @@
 ﻿//Recreation of Bohr model calculator from previous C++ code
+//Main Lesson: Handling and validating user input and outputting to console
 
 namespace BohrModel
 {
