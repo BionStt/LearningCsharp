@@ -15,38 +15,68 @@ namespace FilmRegister
             /*Menu: -Add films, -View films, -Exit. 
              View films: filter by decade, then sort by name or by year
              */
-            //TEST
             System.Collections.Generic.List<System.Tuple<int, string>> FilmList = new System.Collections.Generic.List<System.Tuple<int, string>> { };
-            while (true)
+            bool ContinueProgram = true;
+            string[] MenuOptions = new string[] { "a", "v", "x" };
+            string[] DecadeFilterOptions = GenerateDecadeList();
+            string[] SortOptions = new string[] { "y", "n", "s" };
+            string MenuMessage = "----MENU----\nWelcome to the Film register.\nEnter (a) to add films, (v) to view stored films or (x) to exit: ";
+            string AddFilmsMessage = "Enter film year (" + MinimumYear.ToString() + " - " + System.DateTime.Now.Year.ToString() + ") and film name or (x) to exit.";
+            string DecadeFilterMessage = "Enter decade to filter films by or (a) to view all films: ";
+            string SortMessage = "Enter (y) to sort by year, (n) to sort by name or (s) to skip: ";
+            while (ContinueProgram)
             {
-                System.Console.WriteLine("Enter Year (1950-2018) and Name or x to exit.");  //Make this reponsive
-                System.Console.Write("Input: ");
-                string UserInput = System.Console.ReadLine();
-                if(UserInput == "x")
+                //Menu screen
+                string MenuChoice = TakeStringInput(MenuOptions, MenuMessage);
+                switch (MenuChoice)
                 {
-                    break;
-                }
-                if(!ValidateFilmInput(ref FilmList,UserInput,out string ErrorMsg))
-                {
-                    System.Console.WriteLine(ErrorMsg);
+                    case "x":
+                        ContinueProgram = false;
+                        break;
+                    case "a":
+                        bool ContinueAddingFilms = true;
+                        System.Console.WriteLine(AddFilmsMessage);
+                        while (ContinueAddingFilms)
+                        {
+                            System.Console.Write("Input: ");
+                            string UserInput = System.Console.ReadLine();
+                            if (UserInput == "x" || UserInput == "X")
+                            {
+                                ContinueAddingFilms = false;
+                            }
+                            else
+                            {
+                                if(!ValidateFilmInput(ref FilmList, UserInput, out string ErrorMsg))
+                                {
+                                    System.Console.WriteLine(ErrorMsg);
+                                }
+                            }
+                        }
+                        break;
+                    case "v":
+                        System.Collections.Generic.List<System.Tuple<int, string>> AdaptedList = new System.Collections.Generic.List<System.Tuple<int, string>>(FilmList);
+                        string FilterChoice = TakeStringInput(DecadeFilterOptions, DecadeFilterMessage);
+                        if (FilterChoice != "a")
+                        {
+                            AdaptedList = new System.Collections.Generic.List<System.Tuple<int, string>>(FilterByDecade(ref FilmList, int.Parse(FilterChoice)));
+                        }
+                        string SortChoice = TakeStringInput(SortOptions, SortMessage);
+                        switch (SortChoice)
+                        {
+                            case "y":
+                                SortByYear(ref AdaptedList);
+                                break;
+                            case "n":
+                                SortByName(ref AdaptedList);
+                                break;
+                            case "s":
+                                break;
+                        }
+                        PrintFilmList(ref AdaptedList);
+                        break;
                 }
             }
-            //Filter list by 1990s decade
-            System.Collections.Generic.List<System.Tuple<int, string>> FilteredList = FilterByDecade(ref FilmList, 1990);
-            //Print list of films
-            System.Console.WriteLine("Unfiltered:");
-            PrintFilmList(ref FilmList);
-            System.Console.WriteLine("\nFiltered:");
-            PrintFilmList(ref FilteredList);
-            //Sort lists by name and year
-            FilteredList = FilmList;
-            SortByName(ref FilteredList);
-            System.Console.WriteLine("\nSorted by name:");
-            PrintFilmList(ref FilteredList);
-            SortByYear(ref FilteredList);
-            System.Console.WriteLine("\nSorted by year:");
-            PrintFilmList(ref FilteredList);
-            //END TEST
+
         }
         //Function to print a film list with adaptive title bar size
         private static void PrintFilmList(ref System.Collections.Generic.List<System.Tuple<int, string>> FilmList)
@@ -57,7 +87,7 @@ namespace FilmRegister
                 return;
             }
             //Calculate max number of dashes to go under year and name titles
-            System.Collections.Generic.List<System.Tuple<int, string>> CopiedList = FilmList;
+            System.Collections.Generic.List<System.Tuple<int, string>> CopiedList = new System.Collections.Generic.List<System.Tuple<int, string>>(FilmList);
             CopiedList.Sort((i, j) => j.Item2.Length.CompareTo(i.Item2.Length));
             int NumberOfDashes = CopiedList[0].Item2.Length + 8;
             if (NumberOfDashes < 12)
@@ -169,6 +199,59 @@ namespace FilmRegister
             FilteredList.Sort((i, j) => i.Item2.CompareTo(j.Item2));
         }
 
+        //Function to generate decade list
+        private static string[] GenerateDecadeList()
+        {
+            System.Collections.Generic.List<string> DecadeList = new System.Collections.Generic.List<string> { };
+            int Decade = MinimumYear - (MinimumYear % 10);
+            while (true)
+            {
+                if (Decade > System.DateTime.Now.Year)
+                {
+                    break;
+                }
+                DecadeList.Add(Decade.ToString());
+                Decade += 10;
+            }
+            DecadeList.Add("a");
+            return DecadeList.ToArray();
+        }
+
         //Function to print film list to a file
+
+        //Function to validate input with list of input options
+        private static string TakeStringInput(string[] Options, string CustomMessage)
+        {
+            string InputString = "InputString";
+            string LoweredString = "LoweredString";
+            bool GettingInput = true;
+            while (GettingInput)
+            {
+                System.Console.Write(CustomMessage);
+                InputString = System.Console.ReadLine();
+                LoweredString = InputString.ToLower();
+                bool ValidInputFound = false;
+                foreach (string Option in Options)
+                {
+                    if (LoweredString == Option.ToLower())
+                    {
+                        //Valid option found
+                        ValidInputFound = true;
+                        break;
+                    }
+                }
+                if (ValidInputFound)
+                {
+                    break;
+                }
+                //Else no matching input found, so give an error message and try again
+                System.Console.WriteLine("Invalid input, please input one of the following:");
+                foreach (string Option in Options)
+                {
+                    System.Console.WriteLine(Option);
+                }
+            }
+            return InputString;
+        }
     }
 }
