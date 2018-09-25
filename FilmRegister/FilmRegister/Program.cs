@@ -10,6 +10,7 @@ namespace FilmRegister
     class Program
     {
         private static readonly int MinimumYear = 1950;
+        private static readonly string SaveFileName = "FilmList.txt";
         static void Main(string[] args)
         {
             /*Menu: -Add films, -View films, -Exit. 
@@ -17,16 +18,18 @@ namespace FilmRegister
              */
             System.Collections.Generic.List<System.Tuple<int, string>> FilmList = new System.Collections.Generic.List<System.Tuple<int, string>> { };
             bool ContinueProgram = true;
-            string[] MenuOptions = new string[] { "a", "v", "x" };
+            string[] MenuOptions = new string[] { "a", "v", "s","x" };
             string[] DecadeFilterOptions = GenerateDecadeList();
             string[] SortOptions = new string[] { "y", "n", "s" };
-            string MenuMessage = "----MENU----\nWelcome to the Film register.\nEnter (a) to add films, (v) to view stored films or (x) to exit: ";
+            string MenuMessage = "Enter (a) to add films, (v) to view stored films, (s) to save the film list or (x) to exit: ";
             string AddFilmsMessage = "Enter film year (" + MinimumYear.ToString() + " - " + System.DateTime.Now.Year.ToString() + ") and film name or (x) to exit.";
             string DecadeFilterMessage = "Enter decade to filter films by or (a) to view all films: ";
             string SortMessage = "Enter (y) to sort by year, (n) to sort by name or (s) to skip: ";
             while (ContinueProgram)
             {
                 //Menu screen
+                System.Console.Clear();
+                System.Console.WriteLine("----MENU----\nWelcome to the Film register.\n");
                 string MenuChoice = TakeStringInput(MenuOptions, MenuMessage);
                 switch (MenuChoice)
                 {
@@ -34,6 +37,7 @@ namespace FilmRegister
                         ContinueProgram = false;
                         break;
                     case "a":
+                        System.Console.Clear();
                         bool ContinueAddingFilms = true;
                         System.Console.WriteLine(AddFilmsMessage);
                         while (ContinueAddingFilms)
@@ -54,6 +58,7 @@ namespace FilmRegister
                         }
                         break;
                     case "v":
+                        System.Console.Clear();
                         System.Collections.Generic.List<System.Tuple<int, string>> AdaptedList = new System.Collections.Generic.List<System.Tuple<int, string>>(FilmList);
                         string FilterChoice = TakeStringInput(DecadeFilterOptions, DecadeFilterMessage);
                         if (FilterChoice != "a")
@@ -72,7 +77,18 @@ namespace FilmRegister
                             case "s":
                                 break;
                         }
+                        System.Console.Clear();
                         PrintFilmList(ref AdaptedList);
+                        System.Console.WriteLine("\nPress enter to return to menu");
+                        System.Console.ReadLine();
+                        break;
+                    case "s":
+                        System.Collections.Generic.List<string> SaveList = new System.Collections.Generic.List<string> { };
+                        foreach(System.Tuple<int, string> Film in FilmList)
+                        {
+                            SaveList.Add(Film.Item1.ToString() + " " + Film.Item2);
+                        }
+                        System.IO.File.WriteAllLines(SaveFileName, SaveList);
                         break;
                 }
             }
@@ -250,6 +266,7 @@ namespace FilmRegister
                 {
                     System.Console.WriteLine(Option);
                 }
+
             }
             return InputString;
         }
