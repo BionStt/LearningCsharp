@@ -68,9 +68,42 @@ namespace ComplexNumbers
             return X.ToString() + Joiner + Y.ToString() + "i";
         }
 
-        public void TakeInput(string UserInput)
+        public void TakeInput()
         {
-
+            string CNRegex = @"^-?[0-9]+(\.[0-9]+)?(i\s?$)?([\+\-][0-9]+(\.[0-9]+)?i)?\s?$";
+            string UserInput = System.Console.ReadLine();
+            if(!System.Text.RegularExpressions.Regex.Match(UserInput, CNRegex).Success)
+            {
+                throw new System.Exception("Invalid complex number input");
+            }
+            //Just real case
+            if(double.TryParse(UserInput,out double RealDouble))
+            {
+                X = RealDouble;
+                Y = 0;
+                return;
+            }
+            //Just imaginary case
+            if (double.TryParse(UserInput.Substring(0, UserInput.IndexOf("i")),out double ImDouble))
+            {
+                X = 0;
+                Y = ImDouble;
+                return;
+            }
+            //Full complex case
+            int NegativeSignSearchIndex = 0;
+            if (UserInput[0] == '-')
+            {
+                NegativeSignSearchIndex = 1;
+            }
+            int SeparatorIndex = UserInput.IndexOf("-", NegativeSignSearchIndex);
+            if (SeparatorIndex < 0)
+            {
+                SeparatorIndex = UserInput.IndexOf("+");
+            }
+            X = double.Parse(UserInput.Substring(0, SeparatorIndex));
+            Y = double.Parse(UserInput.Substring(SeparatorIndex, UserInput.IndexOf("i") - SeparatorIndex));
+            return;
         }
     }
 }
